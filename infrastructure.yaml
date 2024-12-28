@@ -18,7 +18,7 @@ Mappings:
 
 Resources:
   # VPC
-  WebVpc:
+  AltairVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
@@ -26,19 +26,19 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: PublicVpc
+          Value: PublicVPC
 
   # Subnet
-  WebPublicSubnet:
+  AltairPublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !FindInMap [RegionMap, ap-northeast-1a, Name]
-      VpcId: !Ref WebVpc
+      VpcId: !Ref AltairVPC
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: WebPublicSubnet
+          Value: AltairPublicSubnet
 
   # Internet Gateway
   InternetGateway:
@@ -49,13 +49,13 @@ Resources:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref WebVpc
+      VpcId: !Ref AltairVPC
 
   # Route Table
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref WebVpc
+      VpcId: !Ref AltairVPC
 
   # Default Route
   DefaultRoute:
@@ -72,7 +72,7 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref RouteTable
-      SubnetId: !Ref WebPublicSubnet
+      SubnetId: !Ref AltairPublicSubnet
 
   # Security Group for EC2
   PublicSecurityGroup:
@@ -80,7 +80,7 @@ Resources:
     Properties:
       GroupDescription: "Allow SSH and HTTP"
       GroupName: "public-sg"
-      VpcId: !Ref WebVpc
+      VpcId: !Ref AltairVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -95,15 +95,15 @@ Resources:
           Value: PublicSecurityGroup
 
   # EC2 Instance
-  WebInstance:
+  AltairInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref ImageId  # Use ImageId parameter
       InstanceType: t2.micro
       KeyName: !Ref KeyName  # Use KeyName parameter
-      SubnetId: !Ref WebPublicSubnet
+      SubnetId: !Ref AltairPublicSubnet
       SecurityGroupIds:
         - !Ref PublicSecurityGroup  # Security Group ID reference
       Tags:
         - Key: Name
-          Value: WebInstance
+          Value: AltairInstance
