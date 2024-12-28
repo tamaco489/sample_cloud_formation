@@ -12,14 +12,18 @@ $ tree
 0 directories, 4 files
 ```
 
+
+実行例:
 ```bash
-$ make create
+$ make create-stack
 aws cloudformation create-stack \
-        --stack-name sample-aws-stack \
-        --template-body file://01_create_network.yaml \
+        --stack-name altair-infrastructure-stack \
         --region ap-northeast-1 \
-        --profile miyabiii_terraform | jq .
+        --template-body file://infrastructure.yaml \
+        --parameters ParameterKey=KeyName,ParameterValue=<your-key-pair> \
+                    ParameterKey=ImageId,ParameterValue=ami-0ab02459752898a60 \
+        --on-failure DELETE | jq .
 {
-  "StackId": "arn:aws:cloudformation:ap-northeast-1:xxxxxxxxxxxx:stack/sample-aws-stack/4fab60b0-c4de-11ef-bc9e-0aab0e5be0e7"
+  "StackId": "arn:aws:cloudformation:ap-northeast-1:xxxxxxxxxxxx:stack/altair-infrastructure-stack/922bb320-c4ef-11ef-98ba-0e6bd735f2d3"
 }
 ```

@@ -21,61 +21,66 @@ Resources:
   AltairVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: 10.8.0.0/24
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: PublicVPC
+          Value: AltairVPC
 
   # Subnet
-  AltairPublicSubnet:
+  AltairSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !FindInMap [RegionMap, ap-northeast-1a, Name]
       VpcId: !Ref AltairVPC
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: 10.8.0.0/25
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: AltairPublicSubnet
+          Value: AltairSubnet
 
   # Internet Gateway
-  InternetGateway:
+  AltairInternetGateway:
     Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: AltairInternetGateway
 
   # VPC Gateway Attachment
-  InternetGatewayAttachment:
+  AltairInternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      InternetGatewayId: !Ref InternetGateway
+      InternetGatewayId: !Ref AltairInternetGateway
       VpcId: !Ref AltairVPC
 
   # Route Table
-  RouteTable:
+  AltairRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref AltairVPC
+      Tags:
+        - Key: Name
+          Value: AltairRouteTable
 
   # Default Route
   DefaultRoute:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref RouteTable
+      RouteTableId: !Ref AltairRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-    DependsOn:
-      - SubnetRouteTableAssociation
+      GatewayId: !Ref AltairInternetGateway
 
   # Subnet Route Table Association
-  SubnetRouteTableAssociation:
+  AltairSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref AltairPublicSubnet
+      RouteTableId: !Ref AltairRouteTable
+      SubnetId: !Ref AltairSubnet
 
   # Security Group for EC2
-  PublicSecurityGroup:
+  AltairSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Allow SSH and HTTP"
@@ -92,7 +97,7 @@ Resources:
           CidrIp: 0.0.0.0/0  # Allow HTTP access
       Tags:
         - Key: Name
-          Value: PublicSecurityGroup
+          Value: AltairSecurityGroup
 
   # EC2 Instance
   AltairInstance:
@@ -101,9 +106,9 @@ Resources:
       ImageId: !Ref ImageId  # Use ImageId parameter
       InstanceType: t2.micro
       KeyName: !Ref KeyName  # Use KeyName parameter
-      SubnetId: !Ref AltairPublicSubnet
+      SubnetId: !Ref AltairSubnet
       SecurityGroupIds:
-        - !Ref PublicSecurityGroup  # Security Group ID reference
+        - !Ref AltairSecurityGroup  # Security Group ID reference
       Tags:
         - Key: Name
           Value: AltairInstance
