@@ -1,5 +1,17 @@
 # sample_cloud_formation
 
+EC2にアクセスするためのkeyペアは事前に作成しておく。
+```bash
+$ tree
+.
+├── Makefile
+├── README.md
+├── altair-key.pem
+└── infrastructure.yaml
+
+0 directories, 4 files
+```
+
 ```bash
 $ make create
 aws cloudformation create-stack \

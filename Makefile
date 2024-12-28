@@ -1,5 +1,5 @@
 STACK_NAME=altair-infrastructure-stack
-TEMPLATE_FILE=file://altair_infrastructure.yaml
+TEMPLATE_FILE=file://infrastructure.yaml
 REGION=ap-northeast-1
 PROFILE=miyabiii_terraform
 AMI_ID=ami-0ab02459752898a60
