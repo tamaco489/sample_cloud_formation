@@ -20,8 +20,7 @@ create-stack:
 		--region $(REGION) \
 		--profile $(PROFILE) \
 		--template-body $(TEMPLATE_FILE) \
-		--parameters ParameterKey=KeyName,ParameterValue=$(KEY_NAME) \
-								ParameterKey=ImageId,ParameterValue=$(AMI_ID) \
+		--parameters ParameterKey=KeyName,ParameterValue=$(KEY_NAME) ParameterKey=ImageId,ParameterValue=$(AMI_ID) \
 		--on-failure DELETE | jq .
 
 describe-stack:
