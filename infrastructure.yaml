@@ -112,3 +112,34 @@ Resources:
       Tags:
         - Key: Name
           Value: AltairInstance
+
+Outputs:
+  VPCID:
+    Description: The ID of the VPC
+    Value: !Ref AltairVPC
+    Export:
+      Name: AltairVPCID
+
+  SubnetID:
+    Description: The ID of the Subnet
+    Value: !Ref AltairSubnet
+    Export:
+      Name: AltairSubnetID
+
+  InternetGatewayID:
+    Description: The ID of the Internet Gateway
+    Value: !Ref AltairInternetGateway
+    Export:
+      Name: AltairInternetGatewayID
+
+  SecurityGroupID:
+    Description: The ID of the Security Group
+    Value: !Ref AltairSecurityGroup
+    Export:
+      Name: AltairSecurityGroupID
+
+  InstanceID:
+    Description: The ID of the EC2 Instance
+    Value: !Ref AltairInstance
+    Export:
+      Name: AltairInstanceID
