@@ -13,7 +13,7 @@ chmod-altair-key:
 to-access:
 	ssh -i ./$(KEY_NAME).pem ec2-user@$(PUBLIC_IP)
 
-.PHONY: create-stack describe-stack delete-stack
+.PHONY: create-stack describe-stack delete-stack validate-template
 create-stack:
 	aws cloudformation create-stack \
 		--stack-name $(STACK_NAME) \
@@ -34,4 +34,9 @@ delete-stack:
 	aws cloudformation delete-stack \
 		--stack-name $(STACK_NAME) \
 		--region $(REGION) \
+		--profile $(PROFILE) | jq .
+
+validate-template:
+	aws cloudformation validate-template \
+		--template-body file://infrastructure.yaml \
 		--profile $(PROFILE) | jq .
