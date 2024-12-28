@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template with EC2 instance, VPC, Subnet, and Internet Gateway
+
+Parameters:
+  KeyName:
+    Type: String
+    Description: The name of an existing EC2 KeyPair to enable SSH access to the instance.
+  ImageId:
+    Type: String
+    Description: The AMI ID to use for the EC2 instance.
+
+Mappings:
+  RegionMap:
+    ap-northeast-1a:
+      Name: "ap-northeast-1a"
+    ap-northeast-1c:
+      Name: "ap-northeast-1c"
+
+Resources:
+  # VPC
+  WebVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: PublicVpc
+
+  # Subnet
+  WebPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !FindInMap [RegionMap, ap-northeast-1a, Name]
+      VpcId: !Ref WebVpc
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: WebPublicSubnet
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  # VPC Gateway Attachment
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref WebVpc
+
+  # Route Table
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref WebVpc
+
+  # Default Route
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    DependsOn:
+      - SubnetRouteTableAssociation
+
+  # Subnet Route Table Association
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref WebPublicSubnet
+
+  # Security Group for EC2
+  PublicSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow SSH and HTTP"
+      GroupName: "public-sg"
+      VpcId: !Ref WebVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0  # Allow SSH access
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0  # Allow HTTP access
+      Tags:
+        - Key: Name
+          Value: PublicSecurityGroup
+
+  # EC2 Instance
+  WebInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId  # Use ImageId parameter
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName  # Use KeyName parameter
+      SubnetId: !Ref WebPublicSubnet
+      SecurityGroupIds:
+        - !Ref PublicSecurityGroup  # Security Group ID reference
+      Tags:
+        - Key: Name
+          Value: WebInstance
